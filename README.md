@@ -12,8 +12,8 @@
 ## To generate some data for metrics; trqces qnd logs
 `./api-calls.sh`
 
-## Exq,ple API cqll
-`curl http://localhost:8080/hello-zorld`
+## Exampleple API cqll
+`curl http://localhost:8080/hello-world`
 
 Alternately you can use postman or any other app to make a rest API call
 
