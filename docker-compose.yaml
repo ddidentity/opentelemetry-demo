@@ -1,0 +1,57 @@
+version: "4"
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.107.0
+    restart: always
+    container_name: otel-collector
+    volumes:
+      - ./config/otel-collector/otel-collector.yaml:/etc/otelcol-contrib/otel-collector.yml
+    command: [ "--config=/etc/otelcol-contrib/otel-collector.yml" ]
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    depends_on:
+      - loki
+      - zipkin
+
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    container_name: prometheus
+    restart: always
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yaml
+    volumes:
+      - ./config/prometheus/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+    ports:
+      - "9090:9090"
+  zipkin:
+    image: openzipkin/zipkin:latest
+    restart: always
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    container_name: loki
+    ports:
+      - "3100:3100"
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: grafana
+    restart: always
+    volumes:
+      - ./config/grafana:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - loki
+      - zipkin

@@ -1,0 +1,36 @@
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+            server:
+                requests: true
+  tracing:
+    sampling:
+        probability: 1.0
+
+  observations:
+    key-values:
+        application: hello-world
+
+  otlp:
+    metrics:
+      export:
+        url: http://localhost:4318/v1/metrics
+        step: 1m
+
+    tracing:
+      endpoint: "http://localhost:4318/v1/traces"
+
+spring:
+  application:
+    name: hello-world
+
+server:
+  port: 8080
